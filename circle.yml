@@ -1,0 +1,72 @@
+version: 2
+
+jobs:
+
+  cuda9_2:
+    docker:
+      - image: nvidia/cuda:9.2-devel-ubuntu18.04
+    steps:
+      - run: apt-get update && apt-get install -qy git golang-go cmake mesa-common-dev libidn11-dev python3-requests python3-git
+      - checkout
+      - run: git submodule update --init --recursive
+      - run: cmake -DHUNTER_JOBS_NUMBER=4 -DCUDA=ON -DOPENCL=ON -DAPI=ON -H. -Bbuild
+      - run: cmake --build build -- -j4
+      - run: mkdir ./artifacts
+      - run: tar -zcvf ./artifacts/ethminer-${CIRCLE_TAG}-cuda9.2-linux-amd64.tgz -C build/ethminer ethminer
+      - run:
+          command: |
+              go get -u github.com/tcnksm/ghr
+              export PATH=/root/go/bin:$PATH
+              if [ "${CIRCLE_TAG}" != "" ] ; then ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./artifacts/; fi
+
+  cuda10_0:
+    docker:
+      - image: nvidia/cuda:10.0-devel-ubuntu18.04
+    steps:
+      - run: apt-get update && apt-get install -qy golang-go git cmake mesa-common-dev libidn11-dev python3-requests python3-git
+      - checkout
+      - run: git submodule update --init --recursive
+      - run: cmake -DHUNTER_JOBS_NUMBER=4 -DCUDA=ON -DOPENCL=ON -DAPI=ON -H. -Bbuild
+      - run: cmake --build build -- -j4
+      - run: mkdir ./artifacts
+      - run: tar -zcvf ./artifacts/ethminer-${CIRCLE_TAG}-cuda10.0-linux-amd64.tgz -C build/ethminer ethminer
+      - run:
+          command: |
+              go get -u github.com/tcnksm/ghr
+              export PATH=/root/go/bin:$PATH
+              if [ "${CIRCLE_TAG}" != "" ] ; then ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./artifacts/; fi
+
+  opencl:
+    docker:
+      - image: ubuntu:18.04
+    steps:
+      - run: apt-get update && apt-get install -qy golang-go git cmake mesa-common-dev libidn11-dev python3-requests python3-git
+      - checkout
+      - run: git submodule update --init --recursive
+      - run: cmake -DHUNTER_JOBS_NUMBER=4 -DCUDA=OFF -DOPENCL=ON -DAPI=ON -H. -Bbuild
+      - run: cmake --build build -- -j4
+      - run: mkdir ./artifacts
+      - run: tar -zcvf ./artifacts/ethminer-${CIRCLE_TAG}-opencl-linux-amd64.tgz -C build/ethminer ethminer
+      - run:
+          command: |
+              go get -u github.com/tcnksm/ghr
+              export PATH=/root/go/bin:$PATH
+              if [ "${CIRCLE_TAG}" != "" ] ; then ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./artifacts/; fi
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - cuda9_2:
+          filters:
+            tags:
+              only: /^.*$/
+
+      - cuda10_0:
+          filters:
+            tags:
+              only: /^.*$/
+      - opencl:
+          filters:
+            tags:
+              only: /^.*$/

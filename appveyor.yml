@@ -1,0 +1,81 @@
+version: "{build}"
+branches:
+  only:
+    - master
+    - /v\d+\..+/
+    - /release.*/
+    - appveyor
+    - hunter
+clone_depth: 100
+os: "Visual Studio 2017"
+environment:
+  matrix:
+    - CUDA_VER: "opencl"
+    - CUDA_VER: "9.2"
+    - CUDA_VER: "10.0"
+  HUNTER_CACHE_TOKEN:
+    secure: VnpF1MH5MEFvUI5MiMMMFlmbDdst+bfom5ZFVgalYPp/SYDhbejjXJm9Dla/IgpC
+
+# Download CUDA Windows installer (local) and extract /compiler/* to /CUDA/vX.0/ zip archive.
+install: |
+  git submodule update --init --recursive
+  set CUDA_ON=ON
+  if "%CUDA_VER%" == "opencl" set CUDA_ON=OFF
+  if "%CUDA_VER%" == "9.2" set CUDA_ARCHIVE=cuda_9.2.148_win10
+  if "%CUDA_VER%" == "9.2" set CUDA_PROD=Prod2/local_installers2
+  if "%CUDA_VER%" == "10.0" set CUDA_ARCHIVE=cuda_10.0.130_411.31_windows
+  if "%CUDA_VER%" == "10.0" set CUDA_PROD=Prod/local_installers
+
+  if "%CUDA_ON%" == "ON" curl -L https://developer.nvidia.com/compute/cuda/%CUDA_VER%/%CUDA_PROD%/%CUDA_ARCHIVE% -o %CUDA_ARCHIVE%.exe
+
+  if "%CUDA_ON%" == "ON" if NOT EXIST C:\CUDA mkdir C:\CUDA
+
+  if "%CUDA_ON%" == "ON" 7z x %CUDA_ARCHIVE%.exe -oC:\CUDA nvcc/* nvrtc*/*
+
+  if "%CUDA_ON%" == "ON" rename C:\CUDA\nvcc v%CUDA_VER%
+
+  if "%CUDA_ON%" == "ON" if EXIST C:\CUDA\nvrtc\bin move C:\CUDA\nvrtc\bin\*.* C:\CUDA\v%CUDA_VER%\bin\
+  if "%CUDA_ON%" == "ON" if EXIST C:\CUDA\nvrtc_dev\include move C:\CUDA\nvrtc_dev\include\*.* C:\CUDA\v%CUDA_VER%\include\
+  if "%CUDA_ON%" == "ON" if EXIST C:\CUDA\nvrtc_dev\lib\x64 move C:\CUDA\nvrtc_dev\lib\x64\*.* C:\CUDA\v%CUDA_VER%\lib\x64\
+
+  if "%CUDA_ON%" == "ON" set PATH=C:\Python36-x64;C:\Python36-x64\Scripts;%PATH%;C:\CUDA\v%CUDA_VER%\bin
+  if "%CUDA_ON%" NEQ "ON" set PATH=C:\Python36-x64;C:\Python36-x64\Scripts;%PATH%
+  pip install requests gitpython
+  if "%CUDA_ON%" == "ON" nvcc -V
+
+build_script:
+  - call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\Common7\Tools\VsMSBuildCmd.bat"
+  - set CMAKE_ARGS=-G "Visual Studio 15 2017 Win64" -H. -Bbuild -DCUDA=%CUDA_ON% -DAPI=ON -DHUNTER_JOBS_NUMBER=%NUMBER_OF_PROCESSORS%
+  - if "%CUDA_VER%" NEQ "10.0" set CMAKE_ARGS=%CMAKE_ARGS% -T v140
+  - cmake %CMAKE_ARGS%
+  - cmake --build build --config Release --target package
+  - ps: |
+      . build/ethminer/buildinfo.ps1
+      if ("$env:CUDA_ON" -eq "ON")
+      {
+        mkdir bin
+        cp C:\CUDA\v$env:CUDA_VER\bin\nvrtc*.dll bin\
+        7z a build/ethminer.zip bin\nvrtc*.dll
+        mv build/ethminer.zip build/$env:project_name-$env:project_version-cuda$env:CUDA_VER-$env:system_name-$env:system_processor.zip
+      } else {
+        mv build/ethminer.zip build/$env:project_name-$env:project_version-opencl-$env:system_name-$env:system_processor.zip
+      }
+
+artifacts:
+  - path: build/ethminer-*.zip
+    name: ethminer
+
+deploy:
+  # Create GitHub release, also set the release name and description.
+  provider: GitHub
+  tag: $(appveyor_repo_tag_name)
+  release: "$(project_name) $(project_version)"
+  description: ""
+  force_update: true  # Force update in case Travis CI created the release before.
+  prerelease: $(project_version_is_prerelease)
+  draft: false
+  artifact: ethminer
+  auth_token:
+    secure: imgc5w/vNRlZoksce2rWx+b78mi7kt11HD9eJ9gQkJvy+fuzWvkvxXXjp6cuptzk
+  on:
+    appveyor_repo_tag: true
