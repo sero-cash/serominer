@@ -4,19 +4,19 @@ aux_source_directory(. SRC_LIST)
 
 include_directories(BEFORE ..)
 
-set(EXECUTABLE ethminer)
+set(EXECUTABLE serominer)
 
 file(GLOB HEADERS "*.h")
 
 add_executable(${EXECUTABLE} ${SRC_LIST} ${HEADERS})
 if(MSVC)
-	target_sources(${EXECUTABLE} PRIVATE ethminer.rc)
+	target_sources(${EXECUTABLE} PRIVATE serominer.rc)
 endif()
 
 hunter_add_package(CLI11)
 find_package(CLI11 CONFIG REQUIRED)
 
-target_link_libraries(ethminer PRIVATE ethcore poolprotocols devcore ethminer-buildinfo CLI11::CLI11 Boost::system Boost::thread)
+target_link_libraries(serominer PRIVATE ethcore poolprotocols devcore serominer-buildinfo CLI11::CLI11 Boost::system Boost::thread)
 
 if(DBUS)
 	find_package(PkgConfig)
@@ -24,17 +24,17 @@ if(DBUS)
 	pkg_check_modules(DBUS dbus-1)
 	include_directories(${DBUS_INCLUDE_DIRS})
 	link_directories(${DBUS_LIBRARY_DIRS})
-	target_link_libraries(ethminer PRIVATE ${DBUS_LIBRARIES})
+	target_link_libraries(serominer PRIVATE ${DBUS_LIBRARIES})
 endif()
 
 if(API)
-	target_link_libraries(ethminer PRIVATE apicore)
+	target_link_libraries(serominer PRIVATE apicore)
 endif()
 
 include(GNUInstallDirs)
 
-install(TARGETS ethminer DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS serominer DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(MSVC)
-    install(FILES $<TARGET_PDB_FILE:ethminer> DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
+    install(FILES $<TARGET_PDB_FILE:serominer> DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
 endif()

@@ -12,7 +12,7 @@ jobs:
       - run: cmake -DHUNTER_JOBS_NUMBER=4 -DCUDA=ON -DOPENCL=ON -DAPI=ON -H. -Bbuild
       - run: cmake --build build -- -j4
       - run: mkdir ./artifacts
-      - run: tar -zcvf ./artifacts/ethminer-${CIRCLE_TAG}-cuda9.2-linux-amd64.tgz -C build/ethminer ethminer
+      - run: tar -zcvf ./artifacts/serominer-${CIRCLE_TAG}-cuda9.2-linux-amd64.tgz -C build/serominer serominer
       - run:
           command: |
               go get -u github.com/tcnksm/ghr
@@ -29,7 +29,7 @@ jobs:
       - run: cmake -DHUNTER_JOBS_NUMBER=4 -DCUDA=ON -DOPENCL=ON -DAPI=ON -H. -Bbuild
       - run: cmake --build build -- -j4
       - run: mkdir ./artifacts
-      - run: tar -zcvf ./artifacts/ethminer-${CIRCLE_TAG}-cuda10.0-linux-amd64.tgz -C build/ethminer ethminer
+      - run: tar -zcvf ./artifacts/serominer-${CIRCLE_TAG}-cuda10.0-linux-amd64.tgz -C build/serominer serominer
       - run:
           command: |
               go get -u github.com/tcnksm/ghr
@@ -46,7 +46,7 @@ jobs:
       - run: cmake -DHUNTER_JOBS_NUMBER=4 -DCUDA=OFF -DOPENCL=ON -DAPI=ON -H. -Bbuild
       - run: cmake --build build -- -j4
       - run: mkdir ./artifacts
-      - run: tar -zcvf ./artifacts/ethminer-${CIRCLE_TAG}-opencl-linux-amd64.tgz -C build/ethminer ethminer
+      - run: tar -zcvf ./artifacts/serominer-${CIRCLE_TAG}-opencl-linux-amd64.tgz -C build/serominer serominer
       - run:
           command: |
               go get -u github.com/tcnksm/ghr

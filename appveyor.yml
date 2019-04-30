@@ -50,20 +50,20 @@ build_script:
   - cmake %CMAKE_ARGS%
   - cmake --build build --config Release --target package
   - ps: |
-      . build/ethminer/buildinfo.ps1
+      . build/serominer/buildinfo.ps1
       if ("$env:CUDA_ON" -eq "ON")
       {
         mkdir bin
         cp C:\CUDA\v$env:CUDA_VER\bin\nvrtc*.dll bin\
-        7z a build/ethminer.zip bin\nvrtc*.dll
-        mv build/ethminer.zip build/$env:project_name-$env:project_version-cuda$env:CUDA_VER-$env:system_name-$env:system_processor.zip
+        7z a build/serominer.zip bin\nvrtc*.dll
+        mv build/serominer.zip build/$env:project_name-$env:project_version-cuda$env:CUDA_VER-$env:system_name-$env:system_processor.zip
       } else {
-        mv build/ethminer.zip build/$env:project_name-$env:project_version-opencl-$env:system_name-$env:system_processor.zip
+        mv build/serominer.zip build/$env:project_name-$env:project_version-opencl-$env:system_name-$env:system_processor.zip
       }
 
 artifacts:
-  - path: build/ethminer-*.zip
-    name: ethminer
+  - path: build/serominer-*.zip
+    name: serominer
 
 deploy:
   # Create GitHub release, also set the release name and description.
@@ -74,7 +74,7 @@ deploy:
   force_update: true  # Force update in case Travis CI created the release before.
   prerelease: $(project_version_is_prerelease)
   draft: false
-  artifact: ethminer
+  artifact: serominer
   auth_token:
     secure: imgc5w/vNRlZoksce2rWx+b78mi7kt11HD9eJ9gQkJvy+fuzWvkvxXXjp6cuptzk
   on:

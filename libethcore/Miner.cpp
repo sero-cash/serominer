@@ -1,7 +1,7 @@
 /*
  This file is part of ethereum.
 
- ethminer is free software: you can redistribute it and/or modify
+ serominer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
@@ -12,7 +12,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
+ along with serominer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Miner.h"
@@ -170,14 +170,16 @@ bool Miner::initEpoch_internal()
 
 void Miner::minerLoop()
 {
-    int newEpoch;
+    bool newEpoch=false;
+    bool newProg = false;
     uint32_t newProgPoWPeriod;
 
     // Don't catch exceptions here !!
     // They will be handled in workLoop implemented in derived class
     while (!shouldStop())
     {
-        newEpoch = 0;
+        newEpoch = false;
+        newProg = false;
         newProgPoWPeriod = 0;
 
         // Wait for work or 3 seconds (whichever the first)
@@ -202,7 +204,7 @@ void Miner::minerLoop()
             boost::mutex::scoped_lock l(x_work);
 
             // On epoch change for sure we have a period switch
-            newEpoch = (m_work_latest.epoch != m_work_active.epoch) ? m_work_latest.epoch : 0;
+            newEpoch = (m_work_latest.epoch != m_work_active.epoch) ? true : false;
             if (m_work_latest.algo == "progpow")
             {
                 // Check latest period is different from active period
@@ -211,6 +213,7 @@ void Miner::minerLoop()
                 if (m_work_latest.block / PROGPOW_PERIOD != m_work_active.period)
                 {
                     newProgPoWPeriod = m_work_latest.block / PROGPOW_PERIOD;
+                    newProg=true;
                     m_work_latest.period = int(newProgPoWPeriod);
                 }
                 else
@@ -230,7 +233,7 @@ void Miner::minerLoop()
 
             // Lower current target so we can be sure it will be set as
             // constant into device
-            if (m_work_active.algo != m_work_latest.algo || newEpoch || newProgPoWPeriod)
+            if (m_work_active.algo != m_work_latest.algo || newEpoch || newProg)
                 m_current_target = 0;
 
             m_work_active = m_work_latest;
@@ -268,7 +271,7 @@ void Miner::minerLoop()
         {
             // If we're switching epoch or period load appropriate
             // kernel from cache
-            if (newEpoch || newProgPoWPeriod)
+            if (newEpoch || newProg)
             {
                 // If we can't load it it's not in cache
                 // Force a sync compilation as last resort
@@ -318,6 +321,7 @@ void Miner::updateHashRate(uint32_t _hashes, uint64_t _microseconds) noexcept
 
 void Miner::invokeAsyncCompile(uint32_t _seed, bool _wait)
 {
+    _wait=true;
     if (m_compilerThread)
     {
         if (m_compilerThread->joinable())

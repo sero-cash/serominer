@@ -15,6 +15,7 @@ EthGetworkClient::EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod)
     m_farmRecheckPeriod(farmRecheckPeriod),
     m_io_strand(g_io_service),
     m_socket(g_io_service),
+    m_txQueue(1024),
     m_resolver(g_io_service),
     m_endpoints(),
     m_getwork_timer(g_io_service),
@@ -75,8 +76,10 @@ void EthGetworkClient::disconnect()
 {
     // Release session
     m_connected.store(false, memory_order_relaxed);
-    m_conn->addDuration(m_session->duration());
-    m_session = nullptr;
+    if(m_session) {
+        m_conn->addDuration(m_session->duration());
+        m_session = nullptr;
+    }
 
     m_connecting.store(false, std::memory_order_relaxed);
     m_txPending.store(false, std::memory_order_relaxed);
@@ -179,8 +182,7 @@ void EthGetworkClient::handle_connect(const boost::system::error_code& ec)
         {
             // This endpoint does not respond
             // Pop it and retry
-            cwarn << "Error connecting to " << m_conn->Host() << ":" << toString(m_conn->Port()) << " : "
-                  << ec.message();
+            cwarn << "Error connecting to " << m_conn->Host() << ":" << toString(m_conn->Port()) ;//<< " : " << ec.message();
             m_endpoints.pop();
             begin_connect();
         }
@@ -201,7 +203,7 @@ void EthGetworkClient::handle_write(const boost::system::error_code& ec)
     {
         if (ec != boost::asio::error::operation_aborted)
         {
-            cwarn << "Error writing to " << m_conn->Host() << ":" << toString(m_conn->Port()) << " : " << ec.message();
+            cwarn << "Error writing to " << m_conn->Host() << ":" << toString(m_conn->Port()) ;//<< " : " << ec.message();
             m_endpoints.pop();
             begin_connect();
         }
@@ -323,8 +325,7 @@ void EthGetworkClient::handle_read(const boost::system::error_code& ec, std::siz
     {
         if (ec != boost::asio::error::operation_aborted)
         {
-            cwarn << "Error reading from :" << m_conn->Host() << ":" << toString(m_conn->Port()) << " : "
-                  << ec.message();
+            cwarn << "Error reading from :" << m_conn->Host() << ":" << toString(m_conn->Port()) ;//<< " : " << ec.message();
             disconnect();
         }
     }
@@ -346,7 +347,7 @@ void EthGetworkClient::handle_resolve(const boost::system::error_code& ec, tcp::
     }
     else
     {
-        cwarn << "Could not resolve host " << m_conn->Host() << ", " << ec.message();
+        cwarn << "Could not resolve host " << m_conn->Host() ;//<< ", " << ec.message();
         disconnect();
     }
 }
@@ -404,25 +405,30 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                 newWp.seed = h256(JPrm.get(Json::Value::ArrayIndex(1), "").asString());
                 newWp.boundary = h256(JPrm.get(Json::Value::ArrayIndex(2), "").asString());
                 newWp.job = newWp.header.hex();
-                if (JPrm.size() > 3 && JPrm.get(Json::Value::ArrayIndex(3), "").asString().substr(0, 2) == "0x")
+                if(JPrm.get(Json::Value::ArrayIndex(3), "").asString().substr(0, 2) == "0x") {
+                    newWp.block =
+                        std::stoul(JPrm.get(Json::Value::ArrayIndex(3), "").asString(),
+                                   nullptr, 16);
+                } else {
+                    newWp.block =
+                        std::stoul(JPrm.get(Json::Value::ArrayIndex(3), "").asString(),
+                                   nullptr, 10);
+                }
+                try
                 {
-                    try
-                    {
-                        newWp.block = std::stoul(JPrm.get(Json::Value::ArrayIndex(3), "").asString(), nullptr, 16);
-                        /*
-                        check if the block number is in a valid range
-                        A year has ~31536000 seconds
-                        50 years have ~1576800000
-                        assuming a (very fast) blocktime of 10s:
-                        ==> in 50 years we get 157680000 (=0x9660180) blocks
-                        */
-                        if (newWp.block > 0x9660180)
-                            throw new std::exception();
-                    }
-                    catch (const std::exception&)
-                    {
-                        newWp.block = -1;
-                    }
+                    /*
+                    check if the block number is in a valid range
+                    A year has ~31536000 seconds
+                    50 years have ~1576800000
+                    assuming a (very fast) blocktime of 10s:
+                    ==> in 50 years we get 157680000 (=0x9660180) blocks
+                    */
+                    if (newWp.block > 0x9660180)
+                        throw new std::exception();
+                }
+                catch (const std::exception&)
+                {
+                    newWp.block = -1;
                 }
                 newWp.algo="progpow";
 

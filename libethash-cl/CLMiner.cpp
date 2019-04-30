@@ -540,10 +540,13 @@ void CLMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollection
             platformType = ClPlatformTypeEnum::Clover;
         else if (platformName == "NVIDIA CUDA")
             platformType = ClPlatformTypeEnum::Nvidia;
+        else if (platformName == "Apple")
+            platformType = ClPlatformTypeEnum::Apple;
         else
         {
-            std::cerr << "Unrecognized platform " << platformName << std::endl;
-            continue;
+            //std::cerr << "Unrecognized platform " << platformName << std::endl;
+            //continue;
+            platformType = ClPlatformTypeEnum::Apple;
         }
 
 
@@ -580,15 +583,21 @@ void CLMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollection
                 }
             }
             else if (clDeviceType == DeviceTypeEnum::Gpu &&
-                     (platformType == ClPlatformTypeEnum::Amd || platformType == ClPlatformTypeEnum::Clover))
+                     (
+                         platformType == ClPlatformTypeEnum::Amd ||
+                         platformType == ClPlatformTypeEnum::Clover ||
+                         platformType == ClPlatformTypeEnum::Apple
+                     )
+                )
             {
-                cl_char t[24];
-                if (clGetDeviceInfo(device.get(), 0x4037, sizeof(t), &t, NULL) == CL_SUCCESS)
-                {
-                    std::ostringstream s;
-                    s << setfill('0') << setw(2) << hex << (unsigned int)(t[21]) << ":" << setw(2)
-                      << (unsigned int)(t[22]) << "." << (unsigned int)(t[23]);
-                    uniqueId = s.str();
+                if(platformType != ClPlatformTypeEnum::Apple) {
+                    cl_char t[24];
+                    if (clGetDeviceInfo(device.get(), 0x4037, sizeof(t), &t, NULL) == CL_SUCCESS) {
+                        std::ostringstream s;
+                        s << setfill('0') << setw(2) << hex << (unsigned int) (t[21]) << ":" << setw(2)
+                          << (unsigned int) (t[22]) << "." << (unsigned int) (t[23]);
+                        uniqueId = s.str();
+                    }
                 }
             }
             else if (clDeviceType == DeviceTypeEnum::Cpu)
@@ -720,6 +729,12 @@ bool CLMiner::initDevice()
         m_hwmoninfo.deviceIndex = -1;  // Will be later on mapped by nvml (see Farm() constructor)
     }
     else if (m_deviceDescriptor.clPlatformType == ClPlatformTypeEnum::Clover)
+    {
+        m_hwmoninfo.deviceType = HwMonitorInfoType::UNKNOWN;
+        m_hwmoninfo.devicePciId = m_deviceDescriptor.uniqueId;
+        m_hwmoninfo.deviceIndex = -1;  // Will be later on mapped by nvml (see Farm() constructor)
+    }
+    else if (m_deviceDescriptor.clPlatformType == ClPlatformTypeEnum::Apple)
     {
         m_hwmoninfo.deviceType = HwMonitorInfoType::UNKNOWN;
         m_hwmoninfo.devicePciId = m_deviceDescriptor.uniqueId;

@@ -19,8 +19,8 @@ HunterGate(
     LOCAL
 )
 
-project(ethminer)
-set(PROJECT_VERSION 0.18.2)
+project(serominer)
+set(PROJECT_VERSION 0.2.0-beta.1)
 
 cable_set_build_type(DEFAULT Release CONFIGURATION_TYPES Release RelWithDebInfo)
 
@@ -107,7 +107,7 @@ if (API)
 	add_subdirectory(libapicore)
 endif()
 
-add_subdirectory(ethminer)
+add_subdirectory(serominer)
 
 
 if(WIN32)
