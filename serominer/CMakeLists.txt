@@ -9,6 +9,8 @@ set(EXECUTABLE serominer)
 file(GLOB HEADERS "*.h")
 
 add_executable(${EXECUTABLE} ${SRC_LIST} ${HEADERS})
+
+
 if(MSVC)
 	target_sources(${EXECUTABLE} PRIVATE serominer.rc)
 endif()
@@ -17,6 +19,10 @@ hunter_add_package(CLI11)
 find_package(CLI11 CONFIG REQUIRED)
 
 target_link_libraries(serominer PRIVATE ethcore poolprotocols devcore serominer-buildinfo CLI11::CLI11 Boost::system Boost::thread)
+
+add_executable(sero_test test.cpp)
+target_link_libraries(sero_test PRIVATE ethcore poolprotocols devcore serominer-buildinfo CLI11::CLI11 Boost::system Boost::thread)
+
 
 if(DBUS)
 	find_package(PkgConfig)
