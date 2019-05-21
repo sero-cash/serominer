@@ -20,7 +20,7 @@ HunterGate(
 )
 
 project(serominer)
-set(PROJECT_VERSION 0.2.0-beta.1)
+set(PROJECT_VERSION 0.3.0)
 
 cable_set_build_type(DEFAULT Release CONFIGURATION_TYPES Release RelWithDebInfo)
 
