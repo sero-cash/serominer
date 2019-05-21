@@ -19,7 +19,7 @@ cmake -G "Visual Studio 15 2017 Win64" -H. -Bbuild -T v140 -DCUDA_TOOLKIT_ROOT_D
 
 cd build
 
-cmake --build . --config RelWithDebInfo --target gminer
+cmake --build . --config RelWithDebInfo --target serominer
 rem make cminer
 
 endlocal
