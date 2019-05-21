@@ -33,6 +33,7 @@ along with serominer.  If not, see <http://www.gnu.org/licenses/>.
 #include <ethash/ethash.hpp>
 
 #include <boost/version.hpp>
+#include <chrono>
 
 #if 0
 #include <boost/fiber/numa/pin_thread.hpp>
@@ -235,6 +236,7 @@ void CPUMiner::ethash_search()
 
 void dev::eth::CPUMiner::progpow_search()
 {
+    using namespace std::chrono;
     const auto& context = progpow::get_global_epoch_context_full(m_work_active.epoch);
     auto header = progpow::hash256_from_bytes(m_work_active.header.data());
     auto boundary = progpow::hash256_from_bytes(m_work_active.boundary.data());
@@ -244,6 +246,8 @@ void dev::eth::CPUMiner::progpow_search()
         // Exit next time around if there's new work awaiting
         if (m_new_work.load(memory_order_relaxed))
             break;
+
+        auto from=steady_clock::now();
 
         auto r = progpow::search(
             context, m_work_active.block, header, boundary, m_work_active.startNonce, m_settings.batchSize);
@@ -257,12 +261,17 @@ void dev::eth::CPUMiner::progpow_search()
             cpulog << EthWhite << "Job: " << m_work_active.header.abridged()
                    << " Sol: " << toHex(sol.nonce, HexPrefix::Add) << EthReset;
 
-            updateHashRate(uint32_t(r.nonce - m_work_active.startNonce) + 1, 1);
+            auto to = steady_clock::now();
+            auto us = duration_cast<microseconds>(to - from).count();
+
+            updateHashRate(uint32_t(r.nonce - m_work_active.startNonce) + 1, us);
             m_work_active.startNonce = r.nonce + 1;
         }
         else
         {
-            updateHashRate(m_settings.batchSize, 1);
+            auto to = steady_clock::now();
+            auto us = duration_cast<microseconds>(to - from).count();
+            updateHashRate(m_settings.batchSize, us);
             m_work_active.startNonce += m_settings.batchSize;
         }
     }

@@ -1320,6 +1320,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     m_current.header = h256(sHeaderHash);
                     m_current.boundary = h256(sShareTarget);
                     m_current_timestamp = std::chrono::steady_clock::now();
+                    m_current.algo="progpow";
 
                     // This will signal to dispatch the job
                     // at the end of the transmission.
