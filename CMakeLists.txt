@@ -26,11 +26,17 @@ cable_set_build_type(DEFAULT Release CONFIGURATION_TYPES Release RelWithDebInfo)
 
 
 option(OPENCL "Build with OpenCL mining" ON)
-option(CUDA "Build with CUDA mining" OFF)
+
+if(NOT APPLE)
+    option(CUDA "Build with CUDA mining" ON)
+else()
+	option(CUDA "Build with CUDA mining" OFF)
+endif()
+
 option(DBUS "Build with D-Bus support" OFF)
 option(API "Build with API Server support" ON)
 option(CPU "Build with CPU mining (only for development)" ON)
-option(DEVBUILD "Log developer metrics" OFF)
+option(DEVBUILD "Log developer metrics" ON)
 
 # propagates CMake configuration options to the compiler
 function(configureProject)
