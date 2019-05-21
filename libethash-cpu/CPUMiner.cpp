@@ -33,7 +33,6 @@ along with serominer.  If not, see <http://www.gnu.org/licenses/>.
 #include <ethash/ethash.hpp>
 
 #include <boost/version.hpp>
-#include <chrono>
 
 #if 0
 #include <boost/fiber/numa/pin_thread.hpp>
@@ -241,13 +240,14 @@ void dev::eth::CPUMiner::progpow_search()
     auto header = progpow::hash256_from_bytes(m_work_active.header.data());
     auto boundary = progpow::hash256_from_bytes(m_work_active.boundary.data());
 
+    this->start_time=steady_clock::now();
+    this->hash_count=0;
+
     while (true)
     {
         // Exit next time around if there's new work awaiting
         if (m_new_work.load(memory_order_relaxed))
             break;
-
-        auto from=steady_clock::now();
 
         auto r = progpow::search(
             context, m_work_active.block, header, boundary, m_work_active.startNonce, m_settings.batchSize);
@@ -262,18 +262,19 @@ void dev::eth::CPUMiner::progpow_search()
                    << " Sol: " << toHex(sol.nonce, HexPrefix::Add) << EthReset;
 
             auto to = steady_clock::now();
-            auto us = duration_cast<microseconds>(to - from).count();
 
-            updateHashRate(uint32_t(r.nonce - m_work_active.startNonce) + 1, us);
+            this->hash_count+=uint32_t(r.nonce - m_work_active.startNonce) + 1;
+
             m_work_active.startNonce = r.nonce + 1;
         }
         else
         {
-            auto to = steady_clock::now();
-            auto us = duration_cast<microseconds>(to - from).count();
-            updateHashRate(m_settings.batchSize, us);
+            this->hash_count+=m_settings.batchSize;
+
             m_work_active.startNonce += m_settings.batchSize;
         }
+        auto us = duration_cast<microseconds>(steady_clock::now() - this->start_time).count();
+        updateHashRate(this->hash_count, us);
     }
 }
 

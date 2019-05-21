@@ -22,6 +22,7 @@ along with serominer.  If not, see <http://www.gnu.org/licenses/>.
 #include <libethcore/Miner.h>
 
 #include <functional>
+#include <chrono>
 
 namespace dev
 {
@@ -48,6 +49,8 @@ private:
     void workLoop() override;
 
     CPSettings m_settings;
+    std::chrono::steady_clock::time_point start_time;
+    uint32_t hash_count;
 };
 
 
