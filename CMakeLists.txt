@@ -36,7 +36,7 @@ endif()
 option(DBUS "Build with D-Bus support" OFF)
 option(API "Build with API Server support" ON)
 option(CPU "Build with CPU mining (only for development)" ON)
-option(DEVBUILD "Log developer metrics" ON)
+option(DEVBUILD "Log developer metrics" OFF)
 
 # propagates CMake configuration options to the compiler
 function(configureProject)
