@@ -243,7 +243,7 @@ public:
         app.add_set("-A,--algo", m_PoolSettings.algo, {"ethash", "progpow"}, "", true);
 
         app.add_option("--startnonce", m_FarmSettings.startNonce, "", true)
-            ->check(CLI::Range(1ull, 18446744073709551615ull));
+            ->check(CLI::Range(0ull, 18446744073709551615ull));
 
         app.add_option("--noncesegmentwidth", m_FarmSettings.nonceSegmentWidth, "", true)->check(CLI::Range(10, 50));
 
