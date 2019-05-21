@@ -821,7 +821,7 @@ bool CLMiner::initDevice()
         if (g_logOptions & LOG_COMPILE)
         {
             std::string buildlog = ethash_program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(m_device);
-            cllog << "OpenCL Ethash kernel build error : " << buildErr.err() << " " << buildErr.what() << "\r\n"
+            cllog << "OpenCL progpow kernel build error : " << buildErr.err() << " " << buildErr.what() << "\r\n"
                   << buildlog;
         }
 #else

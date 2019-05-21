@@ -212,7 +212,7 @@ public:
     {
         std::queue<string> warnings;
 
-        CLI::App app("Ethminer - GPU Ethash miner");
+        CLI::App app("serominer - GPU progpow miner");
 
         bool bhelp = false;
         string shelpExt;
@@ -832,7 +832,7 @@ public:
         {
             cout << "API Interface Options :" << endl
                  << endl
-                 << "    Ethminer provide an interface for monitor and or control" << endl
+                 << "    serominer provide an interface for monitor and or control" << endl
                  << "    Please note that information delivered by API interface" << endl
                  << "    may depend on value of --HWMON" << endl
                  << "    A single endpoint is used to accept both HTTP or plain tcp" << endl
@@ -1102,7 +1102,7 @@ public:
                  << "    Stratum variants :" << endl
                  << endl
                  << "        stratum     Stratum" << endl
-                 << "        stratum1    Eth Proxy compatible" << endl
+                 << "        stratum1    SERO Proxy compatible" << endl
                  << "        stratum2    EthereumStratum 1.0.0 (nicehash)" << endl
                  << "        stratum3    EthereumStratum 2.0.0" << endl
                  << endl
