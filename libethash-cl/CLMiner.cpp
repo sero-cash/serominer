@@ -827,7 +827,7 @@ bool CLMiner::initDevice()
 #else
         (void)buildErr;
 #endif
-        throw std::runtime_error("Unable to build Ethash Kernel");
+        throw std::runtime_error("Unable to build Progpow Kernel");
     }
 
     return true;

@@ -730,7 +730,7 @@ public:
     void help()
     {
         // clang-format off
-        cout << "Ethminer - GPU ethash miner" << endl
+        cout << "serominer - GPU ethash miner" << endl
              << "minimal usage : serominer [DEVICES_TYPE] [OPTIONS] -P... [-P...]" << endl
              << endl
              << "Devices type options :" << endl

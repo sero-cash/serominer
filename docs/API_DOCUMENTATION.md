@@ -1,4 +1,4 @@
-# Ethminer's API documentation
+# serominer's API documentation
 
 ## Table of Contents
 
