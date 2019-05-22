@@ -215,6 +215,14 @@ void Farm::setWork(WorkPackage const& _newWp)
     m_currentWp = _newWp;
     m_telemetry.farm.totalJobs++;
 
+    if (m_Settings.startNonce)
+        m_nonce_scrambler = m_Settings.startNonce;
+    else
+    {
+        random_device engine;
+        m_nonce_scrambler = uniform_int_distribution<uint64_t>()(engine);
+    }
+
     uint64_t _startNonce;
     if (m_currentWp.exSizeBytes > 0)
     {
