@@ -12,12 +12,12 @@ set "PATH=%PERL_PATH%;%CMAKE_PATH%;%PATH%"
 rem switch to ethminer's source folder
 rem cd "%~dp0\cminer\"
 
-if not exist "build\" mkdir "build\"
+if not exist "build_opencl\" mkdir "build_opencl\"
 
 rem For CUDA 9.x pass also `-T v140`
-cmake -G "Visual Studio 15 2017 Win64" -H. -Bbuild -T v140 -DCUDA_TOOLKIT_ROOT_DIR="'C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0'" ..
+cmake -G "Visual Studio 15 2017 Win64" -H. -Bbuild_opencl -T v140 -DCUDA=OFF -DCUDA_TOOLKIT_ROOT_DIR="'C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0'" ..
 
-cd build
+cd build_opencl
 
 cmake --build . --config Release --target serominer
 rem make cminer
