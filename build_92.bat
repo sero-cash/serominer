@@ -15,7 +15,7 @@ rem cd "%~dp0\cminer\"
 if not exist "build_92\" mkdir "build_92\"
 
 rem For CUDA 9.x pass also `-T v140`
-cmake -G "Visual Studio 15 2017 Win64" -H. -Bbuild -T v140 -DCUDA_TOOLKIT_ROOT_DIR="'C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0'" ..
+cmake -G "Visual Studio 15 2017 Win64" -H. -Bbuild -T v140 -DCUDA_TOOLKIT_ROOT_DIR="'C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v9.2'" ..
 
 cd build_92
 
