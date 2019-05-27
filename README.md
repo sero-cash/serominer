@@ -6,7 +6,7 @@
 
 > Ethereum miner with OpenCL, CUDA and stratum support
 
-**serominer** is an Ethash/ProgPoW GPU mining worker: with serominer you can mine every coin which relies on an Ethash Proof of Work thus including Ethereum, Ethereum Classic, Metaverse, Musicoin, Ellaism, Pirl, Expanse and others. This is the actively maintained version of serominer. It originates from [cpp-ethereum] project (where GPU mining has been discontinued) and builds on the improvements made in [Genoil's fork]. See [FAQ](#faq) for more details.
+**serominer** is an Ethash/ProgPoW GPU mining worker: with serominer you can mine Sero. This is the actively maintained version of serominer. It originates from [cpp-ethereum] project (where GPU mining has been discontinued) and builds on the improvements made in [Genoil's fork]. See [FAQ](#faq) for more details.
 
 ## Features
 
