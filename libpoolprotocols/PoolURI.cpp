@@ -323,25 +323,6 @@ URI::URI(std::string uri, bool _sim) : m_uri{std::move(uri)}
         }
     }
 
-    // Process query in search of any extra parameters
-    if (!m_query.empty())
-    {
-        std::vector<std::string> querychunks;
-        boost::split(querychunks, m_query, boost::is_any_of("&"));
-        for (size_t i = 0; i < querychunks.size(); i++)
-        {
-            std::vector<std::string> tuplet;
-            boost::split(tuplet, querychunks.at(i), boost::is_any_of("="));
-            if (tuplet.size() == 2 && !tuplet.at(1).empty())
-            {
-                if (tuplet.at(0) == "algo")
-                    url_decode(tuplet.at(1), m_algo);
-                if (tuplet.at(0) == "coin")
-                    url_decode(tuplet.at(1), m_coin);
-            }
-        }
-    }
-
     // Determine host type
     boost::system::error_code ec;
     boost::asio::ip::address address = boost::asio::ip::address::from_string(m_host, ec);

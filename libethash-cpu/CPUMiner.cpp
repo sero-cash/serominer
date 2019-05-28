@@ -197,42 +197,6 @@ bool CPUMiner::initDevice()
 }
 
 
-void CPUMiner::ethash_search()
-{
-    const auto& context = ethash::get_global_epoch_context_full(m_work_active.epoch);
-    auto header = ethash::hash256_from_bytes(m_work_active.header.data());
-    auto boundary = ethash::hash256_from_bytes(m_work_active.boundary.data());
-
-    while (true)
-    {
-        // Exit next time around if there's new work awaiting
-        if (m_new_work.load(memory_order_relaxed) || paused() || shouldStop())
-            break;
-
-        auto r = ethash::search(context, header, boundary, m_work_active.startNonce, m_settings.batchSize);
-        if (r.solution_found)
-        {
-            h256 mix{reinterpret_cast<byte*>(r.mix_hash.bytes), h256::ConstructFromPointer};
-            auto sol = Solution{r.nonce, mix, m_work_active, std::chrono::steady_clock::now(), m_index};
-
-            Farm::f().submitProof(sol);
-
-            cpulog << EthWhite << "Job: " << m_work_active.header.abridged()
-                   << " Sol: " << toHex(sol.nonce, HexPrefix::Add) << EthReset;
-
-            // Following statement could compute wrong values if we're at the end
-            // of nonce type (uint64) and it overruns from 0x..fff to 0x..000
-            updateHashRate(uint32_t(r.nonce - m_work_active.startNonce) + 1, 1);
-            m_work_active.startNonce = r.nonce + 1;
-        }
-        else
-        {
-            updateHashRate(m_settings.batchSize, 1);
-            m_work_active.startNonce += m_settings.batchSize;
-        }
-    }
-}
-
 void dev::eth::CPUMiner::progpow_search()
 {
     using namespace std::chrono;

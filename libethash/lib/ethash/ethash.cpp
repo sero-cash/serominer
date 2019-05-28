@@ -10,7 +10,6 @@
 #include "support/attributes.h"
 #include <ethash/keccak.hpp>
 #include <ethash/progpow.hpp>
-#include "blake2b.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -262,10 +261,7 @@ inline hash512 hash_seed(const hash256& header_hash, uint64_t nonce) noexcept
     std::memcpy(&init_data[0], &header_hash, sizeof(header_hash));
     std::memcpy(&init_data[sizeof(header_hash)], &nonce, sizeof(nonce));
 
-    //return keccak512(init_data, sizeof(init_data));
-    hash512 ret={0};
-    hash_enter(ret.bytes,init_data);
-    return ret;
+    return keccak512(init_data, sizeof(init_data));
 }
 
 inline hash256 hash_final(const hash512& seed, const hash256& mix_hash)
@@ -273,11 +269,7 @@ inline hash256 hash_final(const hash512& seed, const hash256& mix_hash)
     uint8_t final_data[sizeof(seed) + sizeof(mix_hash)];
     std::memcpy(&final_data[0], seed.bytes, sizeof(seed));
     std::memcpy(&final_data[sizeof(seed)], mix_hash.bytes, sizeof(mix_hash));
-    //return keccak256(final_data, sizeof(final_data));
-
-    hash256 ret={0};
-    hash_leave(ret.bytes,final_data);
-    return ret;
+    return keccak256(final_data, sizeof(final_data));
 }
 
 inline hash256 hash_kernel(

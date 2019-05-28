@@ -73,7 +73,7 @@ struct WorkPackage
     uint64_t startNonce = 0;
     uint16_t exSizeBytes = 0;
 
-    std::string algo = "ethash";
+    //std::string algo = "ethash";
 };
 
 struct Solution

@@ -430,7 +430,6 @@ void EthGetworkClient::processResponse(Json::Value& JRes)
                 {
                     newWp.block = -1;
                 }
-                newWp.algo="progpow";
 
                 if (m_current.header != newWp.header)
                 {

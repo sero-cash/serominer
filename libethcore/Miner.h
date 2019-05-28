@@ -491,7 +491,6 @@ private:
     bitset<MinerPauseEnum::Pause_MAX> m_pauseFlags;
 
 
-    virtual void ethash_search() = 0;
     virtual void progpow_search() = 0;
     virtual void compileProgPoWKernel(uint32_t _seed, uint32_t _dagelms) = 0;  // Actually it pushes the
                                                                                // kernel in cache

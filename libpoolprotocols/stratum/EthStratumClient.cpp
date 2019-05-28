@@ -1320,7 +1320,6 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     m_current.header = h256(sHeaderHash);
                     m_current.boundary = h256(sShareTarget);
                     m_current_timestamp = std::chrono::steady_clock::now();
-                    m_current.algo="progpow";
 
                     // This will signal to dispatch the job
                     // at the end of the transmission.
@@ -1363,7 +1362,6 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             m_current.header = h256(header);
             m_current.boundary = h256(m_session->nextWorkBoundary.hex(HexPrefix::Add));
             m_current.epoch = m_session->epoch;
-            m_current.algo = m_session->algo;
             m_current.startNonce = m_session->extraNonce;
             m_current.exSizeBytes = m_session->extraNonceSizeBytes;
             m_current_timestamp = std::chrono::steady_clock::now();
@@ -1441,7 +1439,6 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 m_session->nextWorkBoundary = h256(target);
             }
 
-            m_session->algo = jPrm.get("algo", "ethash").asString();
             string enonce = jPrm.get("extranonce", "").asString();
             if (!enonce.empty())
                 processExtranonce(enonce);

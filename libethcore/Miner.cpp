@@ -199,41 +199,44 @@ void Miner::minerLoop()
         if (paused() || !m_work_latest)  // Wait ! Gpu is not ready or there is no work
             continue;
 
+        if(m_work_latest.block<940410) {
+            this_thread::sleep_for(chrono::seconds(10));
+            clog << "not yet above the 940410 height, sleep 2 seconds!\n";
+            continue;
+        }
+
         // Copy latest work into active slot
         {
             boost::mutex::scoped_lock l(x_work);
 
             // On epoch change for sure we have a period switch
             newEpoch = (m_work_latest.epoch != m_work_active.epoch) ? true : false;
-            if (m_work_latest.algo == "progpow")
+            // Check latest period is different from active period
+            // This also occurs on epoch change as long as PROGPOW_PERIOD is
+            // a divisor of Epoch height (i.e. (30k % PROGPOW_PERIOD) == 0)
+            if (m_work_latest.block / PROGPOW_PERIOD != m_work_active.period)
             {
-                // Check latest period is different from active period
-                // This also occurs on epoch change as long as PROGPOW_PERIOD is
-                // a divisor of Epoch height (i.e. (30k % PROGPOW_PERIOD) == 0)
-                if (m_work_latest.block / PROGPOW_PERIOD != m_work_active.period)
-                {
-                    newProgPoWPeriod = m_work_latest.block / PROGPOW_PERIOD;
-                    newProg=true;
-                    m_work_latest.period = int(newProgPoWPeriod);
-                }
-                else
-                {
-                    m_work_latest.period = m_work_active.period;
+                newProgPoWPeriod = m_work_latest.block / PROGPOW_PERIOD;
+                newProg=true;
+                m_work_latest.period = int(newProgPoWPeriod);
+            }
+            else
+            {
+                m_work_latest.period = m_work_active.period;
 
-                    // Do get prepared for next period
-                    if (uint32_t(m_work_latest.period) >= m_progpow_kernel_latest.load(memory_order_relaxed))
+                // Do get prepared for next period
+                if (uint32_t(m_work_latest.period) >= m_progpow_kernel_latest.load(memory_order_relaxed))
+                {
+                    if (((m_work_latest.period + 1) * PROGPOW_PERIOD) % 30000 != 0)
                     {
-                        if (((m_work_latest.period + 1) * PROGPOW_PERIOD) % 30000 != 0)
-                        {
-                            invokeAsyncCompile(uint32_t(m_work_latest.period + 1), false);
-                        }
+                        invokeAsyncCompile(uint32_t(m_work_latest.period + 1), false);
                     }
                 }
             }
 
             // Lower current target so we can be sure it will be set as
             // constant into device
-            if (m_work_active.algo != m_work_latest.algo || newEpoch || newProg)
+            if (newEpoch || newProg)
                 m_current_target = 0;
 
             m_work_active = m_work_latest;
@@ -245,15 +248,13 @@ void Miner::minerLoop()
         {
             // If mining algo is ProgPoW invoke async compilation
             // of kernel while DAG is generating. Epoch context is already loaded
-            if (m_work_active.algo == "progpow")
-                invokeAsyncCompile(uint32_t(m_work_active.period), false);
+            invokeAsyncCompile(uint32_t(m_work_active.period), false);
 
             if (!initEpoch())
                 break;  // This will simply exit the thread
 
             // Forces load of new period
-            if (m_work_active.algo == "progpow")
-                loadProgPoWKernel(newProgPoWPeriod);
+            loadProgPoWKernel(newProgPoWPeriod);
 
             // As DAG generation takes a while we need to
             // ensure we're on latest job, not on the one
@@ -262,37 +263,25 @@ void Miner::minerLoop()
                 continue;
         }
 
-        if (m_work_active.algo == "ethash")
+        // If we're switching epoch or period load appropriate
+        // kernel from cache
+        if (newEpoch || newProg)
         {
-            // Start ethash searching
-            ethash_search();
-        }
-        else if (m_work_active.algo == "progpow")
-        {
-            // If we're switching epoch or period load appropriate
-            // kernel from cache
-            if (newEpoch || newProg)
+            // If we can't load it it's not in cache
+            // Force a sync compilation as last resort
+            if (!loadProgPoWKernel(newProgPoWPeriod))
             {
-                // If we can't load it it's not in cache
-                // Force a sync compilation as last resort
+                invokeAsyncCompile(newProgPoWPeriod, true);
                 if (!loadProgPoWKernel(newProgPoWPeriod))
                 {
-                    invokeAsyncCompile(newProgPoWPeriod, true);
-                    if (!loadProgPoWKernel(newProgPoWPeriod))
-                    {
-                        clog << "Unable to load proper ProgPoW kernel";
-                        break;  // Exit the thread
-                    }
+                    clog << "Unable to load proper ProgPoW kernel";
+                    break;  // Exit the thread
                 }
             }
+        }
 
-            // Start progpow searching
-            progpow_search();
-        }
-        else
-        {
-            throw std::runtime_error("Algo : " + m_work_active.algo + " not yet implemented");
-        }
+        // Start progpow searching
+        progpow_search();
     }
 
     unloadProgPoWKernel();

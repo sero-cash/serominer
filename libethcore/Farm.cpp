@@ -201,12 +201,8 @@ void Farm::setWork(WorkPackage const& _newWp)
             miner->setEpoch(m_currentEc);
     }
 
-    // Inform About Mining Algo
-    if (_newWp.algo != m_currentWp.algo || m_telemetry.farm.totalJobs == 0)
-        cnote << "Mining algo " << EthWhiteBold << _newWp.algo << EthReset;
-
     // Prevent dispatch of a ProgPoW workpackage which has block number missing
-    if (_newWp.algo == "progpow" && _newWp.block < 0)
+    if (_newWp.block < 0)
     {
         cwarn << EthRed "Got ProgPoW job with missing block number. Discarding ..." EthReset;
         return;
@@ -490,20 +486,8 @@ void Farm::submitProofAsync(Solution const& _s)
     {
         bool valid = false;
 
-        if (_s.work.algo == "ethash")
-        {
-            valid = EthashAux::verify(_s.work.epoch, _s.work.header, _s.mixHash, _s.nonce, _s.work.boundary);
-        }
-        else if (_s.work.algo == "progpow")
-        {
-            valid = ProgPoWAux::verify(
-                _s.work.epoch, _s.work.block, _s.work.header, _s.mixHash, _s.nonce, _s.work.boundary);
-        }
-        else
-        {
-            // Assume other algos are valid
-            valid = true;
-        }
+        valid = ProgPoWAux::verify( _s.work.epoch, _s.work.block, _s.work.header, _s.mixHash, _s.nonce, _s.work.boundary);
+
         if (!valid)
         {
             accountSolution(_s.midx, SolutionAccountingEnum::Failed);

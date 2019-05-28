@@ -56,8 +56,6 @@ public:
     URI() = delete;
     URI(std::string uri, bool _sim = false);
 
-    std::string Algo() const { return m_algo; }
-    std::string Coin() const { return m_coin; }
     std::string Scheme() const { return m_scheme; }
     std::string Host() const { return m_host; }
     std::string Path() const { return m_path; }
@@ -108,8 +106,6 @@ private:
     std::string m_password = "X";
     std::string m_worker;
     std::string m_uri;
-    std::string m_algo;  // Algorithm to be used by connection (defaults to ethash)
-    std::string m_coin;  // Coin to be mined. Useful to specify special behaviors
 
     unsigned short m_stratumMode = 999;  // Initial value 999 means not tested yet
     unsigned short m_port = 0;

@@ -59,15 +59,7 @@ void SimulateClient::submitSolution(const Solution& _s)
     std::chrono::steady_clock::time_point submit_start = std::chrono::steady_clock::now();
     bool accepted = true;
 
-    if (_s.work.algo == "ethash")
-    {
-        accepted = EthashAux::verify(_s.work.epoch, _s.work.header, _s.mixHash, _s.nonce, _s.work.boundary);
-    }
-    if (_s.work.algo == "progpow")
-    {
-        accepted =
-            ProgPoWAux::verify(_s.work.epoch, _s.work.block, _s.work.header, _s.mixHash, _s.nonce, _s.work.boundary);
-    }
+    accepted = ProgPoWAux::verify(_s.work.epoch, _s.work.block, _s.work.header, _s.mixHash, _s.nonce, _s.work.boundary);
 
     std::chrono::milliseconds response_delay_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - submit_start);

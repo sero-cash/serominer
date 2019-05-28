@@ -68,7 +68,6 @@ protected:
 private:
     void workLoop() override;
 
-    void ethash_search() override;
     void progpow_search() override;
 
     void compileProgPoWKernel(uint32_t _seed, uint32_t _dagelms) override;

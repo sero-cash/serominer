@@ -41,7 +41,6 @@ protected:
     bool initDevice() override;
 
 private:
-    void ethash_search() override;
     void progpow_search() override;
     void compileProgPoWKernel(uint32_t _seed, uint32_t _dagelms) override;
     bool loadProgPoWKernel(uint32_t _seed) override;

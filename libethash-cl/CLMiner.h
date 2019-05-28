@@ -104,7 +104,6 @@ protected:
     bool initEpoch_internal() override;
 
 private:
-    void ethash_search() override;
     void progpow_search() override;
 
     void compileProgPoWKernel(uint32_t _seed, uint32_t _dagelms) override;
@@ -112,7 +111,7 @@ private:
 
     void workLoop() override;
 
-    cl::Kernel m_ethash_search_kernel;
+    //cl::Kernel m_ethash_search_kernel;
     cl::Kernel m_ethash_dag_kernel;
     cl::Kernel m_progpow_search_kernel;
 
@@ -123,7 +122,7 @@ private:
     cl::CommandQueue m_queue;
     cl::CommandQueue m_queue_abort;
 
-    long m_ethash_search_kernel_time = 0L;
+    //long m_ethash_search_kernel_time = 0L;
     long m_progpow_search_kernel_time = 0L;
 
     cl::Buffer m_dag;
@@ -134,7 +133,7 @@ private:
 
     CLSettings m_settings;
 
-    uint32_t m_zero = 0;
+    //uint32_t m_zero = 0;
     uint32_t m_one = 1;
     uint32_t m_zerox3[3] = {0, 0, 0};
     uint64_t m_current_target = 0ULL;

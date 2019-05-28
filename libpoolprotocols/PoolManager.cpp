@@ -195,23 +195,6 @@ void PoolManager::setClientHandlers()
 
         showMiningAt(newEpoch, newBlock, newDiff);
 
-        // Set the algo if defined as override in PoolManager
-        // or on each single connection.
-        // **Only in case we're not in EthereumStratum/2.0.0** which
-        // already carries algo specification
-        if (p_client->getConnection()->StratumMode() != 3)
-        {
-            if (p_client->getConnection()->Algo().size() && p_client->getConnection()->Algo() != "ethash")
-            {
-                m_currentWp.algo = p_client->getConnection()->Algo();
-            }
-            else
-            {
-                if (m_Settings.algo.size() && m_Settings.algo != "ethash")
-                    m_currentWp.algo = m_Settings.algo;
-            }
-        }
-
         cnote << "Job: " EthWhite << m_currentWp.header.abridged() << EthReset << " " << m_selectedHost;
 
         Farm::f().setWork(m_currentWp);
