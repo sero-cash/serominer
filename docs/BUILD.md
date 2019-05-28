@@ -83,20 +83,15 @@ sudo apt-get install mesa-common-dev
 4. Build the project using [CMake Build Tool Mode]. This is a portable variant of `make`.
 
     ```shell
-    cmake --build .
+    make serominer
     ```
 
     Note: On Windows, it is possible to have compiler issues if you don't specify the build config. In that case use:
 
     ```shell
-    cmake --build . --config Release
+    cmake --build . --config Release --target serominer
     ```
 
-5. _(Optional, Linux only)_ Install the built executable:
-
-    ```shell
-    sudo make install
-    ```
 
 ### Windows-specific script
 
@@ -106,29 +101,7 @@ Complete sample Windows batch file - **adapt it to your system**. Assumes that:
 * you have CMake installed
 * you have Perl installed
 
-```bat
-@echo off
-setlocal
-
-rem add MSVC in PATH
-call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\Common7\Tools\VsMSBuildCmd.bat"
-
-rem add Perl in PATH; it's needed for OpenSSL build
-set "PERL_PATH=C:\Perl\perl\bin"
-set "PATH=%PERL_PATH%;%PATH%"
-
-rem switch to serominer's source folder
-cd "%~dp0\serominer\"
-
-if not exist "build\" mkdir "build\"
-
-rem For CUDA 9.x pass also `-T v140`
-cmake -G "Visual Studio 15 2017 Win64" -H. -Bbuild -DOPENCL=ON -DCUDA=ON -DAPI=ON ..
-cmake --build . --config Release --target package
-
-endlocal
-pause
-```
+See "build-cuda.bat" or "build-opencl.bat"
 
 ## CMake configuration options
 

@@ -1,12 +1,8 @@
 # serominer
 
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)][Gitter]
-[![Releases](https://img.shields.io/github/downloads/miscellaneousbits/serominer/total.svg)][Releases]
-
 > Ethereum miner with OpenCL, CUDA and stratum support
 
-**serominer** is an Ethash/ProgPoW GPU mining worker: with serominer you can mine Sero. This is the actively maintained version of serominer. It originates from [cpp-ethereum] project (where GPU mining has been discontinued) and builds on the improvements made in [Genoil's fork]. See [FAQ](#faq) for more details.
+**serominer** is an ProgPoW GPU mining worker: with serominer you can mine Sero. This is the actively maintained version of serominer. It originates from [cpp-ethereum] project (where GPU mining has been discontinued) and builds on the improvements made in [Genoil's fork]. See [FAQ](#faq) for more details.
 
 ## Features
 
@@ -14,37 +10,9 @@
 * Nvidia CUDA mining
 * realistic benchmarking against arbitrary epoch/DAG/blocknumber
 * on-GPU DAG generation (no more DAG files on disk)
-* stratum mining without proxy
+* stratum1 mining without proxy
 * OpenCL devices picking
-* farm failover (getwork + stratum)
-
-
-## Table of Contents
-
-* [Install](#install)
-* [Usage](#usage)
-    * [Examples connecting to pools](#examples-connecting-to-pools)
-* [Build](#build)
-    * [Continuous Integration and development builds](#continuous-integration-and-development-builds)
-    * [Building from source](#building-from-source)
-* [Contributors](#contributors)
-* [Contribute](#contribute)
-* [F.A.Q.](#faq)
-
-
-## Install
-
-[![Releases](https://img.shields.io/github/downloads/miscellaneousbits/serominer/total.svg)][Releases]
-
-Standalone **executables** for *Linux*, *macOS* and *Windows* are provided in
-the [Releases] section.
-Download an archive for your operating system and unpack the content to a place
-accessible from command line. The serominer is ready to go.
-
-| Builds | Release | Date |
-| ------ | ------- | ---- |
-| Last   | [![GitHub release](https://img.shields.io/github/release/miscellaneousbits/serominer/all.svg)](https://github.com/miscellaneousbits/serominer/releases) | [![GitHub Release Date](https://img.shields.io/github/release-date-pre/miscellaneousbits/serominer.svg)](https://github.com/miscellaneousbits/serominer/releases) |
-| Stable | [![GitHub release](https://img.shields.io/github/release/miscellaneousbits/serominer.svg)](https://github.com/miscellaneousbits/serominer/releases/latest) | [![GitHub Release Date](https://img.shields.io/github/release-date/miscellaneousbits/serominer.svg)](https://github.com/miscellaneousbits/serominer/releases/latest) |
+* farm failover (getwork + stratum1)
 
 
 ## Usage
@@ -58,39 +26,11 @@ For a full list of available command, please run:
 serominer --help
 ```
 
-### Examples connecting to pools
-
-Check our [samples](docs/POOL_EXAMPLES_ETH.md) to see how to connect to different pools.
-
 ## Build
-
-### Continuous Integration and development builds
-
-| CI           | OS      | Status  | Development builds |
-| ------------ | ------- | -----   | -----------------  |
-| [AppVeyor]   | Windows | [![AppVeyor](https://img.shields.io/appveyor/ci/jean-m-cyr/serominer/master.svg)][AppVeyor] | ✓ Build artifacts available for all PRs and master |
-| CircleCI     | Linux   | [![CircleCI](https://circleci.com/gh/miscellaneousbits/serominer/tree/master.svg?style=svg)](https://circleci.com/gh/miscellaneousbits/serominer/tree/master) | |
-
-The AppVeyor system automatically builds a Windows .exe for every commit. The latest version is always available [on the landing page](https://ci.appveyor.com/project/jean-m-cyr/serominer) or you can [browse the history](https://ci.appveyor.com/project/jean-m-cyr/serominer/history) to access previous builds.
-
-To download the .exe on a build under `Job name` select the CUDA version you use, choose `Artifacts` then download the zip file.
 
 ### Building from source
 
 See [docs/BUILD.md](docs/BUILD.md) for build/compilation details.
-
-## Contributors
-
-The list of current and past maintainers, authors and contributors.
-[Contributor statistics]
-
-## Contribute
-
-[![Gitter](https://img.shields.io/gitter/room/ethereum-mining/serominer.svg)][Gitter]
-
-To meet the community, ask general questions and chat about serominer join [the serominer channel on Gitter][Gitter].
-
-All bug reports, pull requests and code reviews are very much welcome.
 
 
 ## License
@@ -152,8 +92,5 @@ Error: Insufficient CUDA driver: 9010
 
 You have to upgrade your Nvidia drivers. On Linux, install `nvidia-396` package or newer.
 
-[AppVeyor]: https://ci.appveyor.com/project/jean-m-cyr/serominer
-[CircleCI}]: https://circleci.com/gh/miscellaneousbits/serominer
-[Contributor statistics]: https://github.com/miscellaneousbits/serominer/graphs/contributors?type=a
-[Gitter]: https://gitter.im/ethereum-mining/serominer
-[Releases]: https://github.com/miscellaneousbits/serominer/releases
+[Gitter]: https://gitter.im/sero-cash/miner
+[Releases]: https://github.com/sero-cash/serominer/releases
