@@ -1,3 +1,6 @@
+#include "xxenc.h"
+//#include "xxhash.h"
+
 /**
  * The BLAKE2b initialization vectors
  */
@@ -96,7 +99,7 @@ do {\
 } while(0)
 
 
-static void blake2b_increment_counter(blake2b_state* state, const uint64_t inc)
+static inline void blake2b_increment_counter(blake2b_state* state, const uint64_t inc)
 {
     state->t[0] += inc;
     state->t[1] += ((state->t[0] < inc)?1:0);
@@ -135,7 +138,7 @@ do{\
     }\
 } while(0)
 
-static void blake2b_init(blake2b_state* state, size_t outlen, const uint8_t * personal)
+static inline void blake2b_init(blake2b_state* state, size_t outlen, const uint8_t * personal)
 {
     blake2b_param P = {0};
     const uint8_t* p;
@@ -159,7 +162,7 @@ static void blake2b_init(blake2b_state* state, size_t outlen, const uint8_t * pe
     state->outlen = P.digest_length;
 }
 
-static void blake2b_update(blake2b_state* state, const unsigned char* input_buffer,
+static inline void blake2b_update(blake2b_state* state, const unsigned char* input_buffer,
                size_t inlen)
 {
     const unsigned char* in = input_buffer;
@@ -185,7 +188,7 @@ static void blake2b_update(blake2b_state* state, const unsigned char* input_buff
 }
 
 
-static void blake2b_final(blake2b_state* state, uint8_t* out, size_t outlen)
+static inline void blake2b_final(blake2b_state* state, uint8_t* out, size_t outlen)
 {
     uint8_t buffer[BLAKE2B_OUTBYTES] = { 0 };
     size_t i;
@@ -208,7 +211,7 @@ static void blake2b_final(blake2b_state* state, uint8_t* out, size_t outlen)
     memcpy(out, buffer, state->outlen);
 }
 
-static void blake2b(
+static inline void blake2b(
     uint8_t* output,
     size_t outlen,
     const uint8_t* input,
@@ -223,46 +226,21 @@ static void blake2b(
     blake2b_final(&state, output, outlen);
 }
 
-static void hash_enter(uint8_t* o,const uint8_t* s) {
-    uint8_t p[16];
-    p[0]='$';
-    p[1]='C';
-    p[2]='Z';
-    p[3]='E';
-    p[4]='R';
-    p[5]='O';
-    p[6]='.';
-    p[7]='M';
-    p[8]='I';
-    p[9]='N';
-    p[10]='E';
-    p[11]='R';
-    p[12]='.';
-    p[13]='H';
-    p[14]='2';
-    p[15]=0;
 
-    blake2b(o,64,s,40,p);
+uint64_t VP1=829000;
+
+static inline void hash_enter(uint8_t* o,const uint8_t* s) {
+    uint8_t p[16];
+    uint8_t s_enc[40]={0};
+    xxenc(s,s_enc,40);
+    memcpy(p,s_enc,16);
+    blake2b(o,64,s_enc,40,p);
 }
 
-static void hash_leave(uint8_t* o,const uint8_t* s) {
+static inline void hash_leave(uint8_t* o,const uint8_t* s) {
     uint8_t p[16];
-    p[0]='$';
-    p[1]='C';
-    p[2]='Z';
-    p[3]='E';
-    p[4]='R';
-    p[5]='O';
-    p[6]='.';
-    p[7]='M';
-    p[8]='I';
-    p[9]='N';
-    p[10]='E';
-    p[11]='R';
-    p[12]='.';
-    p[13]='H';
-    p[14]='3';
-    p[15]=0;
-
-    blake2b(o,32,s,96,p);
+    uint8_t s_enc[96]={0};
+    xxenc(s,s_enc,96);
+    memcpy(p,s_enc,16);
+    blake2b(o,32,s_enc,96,p);
 }
