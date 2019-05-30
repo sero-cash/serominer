@@ -533,6 +533,9 @@ void CLMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollection
         }
 
         std::string platformName = platforms.at(pIdx).getInfo<CL_PLATFORM_NAME>();
+
+        cllog << "PlatforName : " << platformName << "\n";
+
         ClPlatformTypeEnum platformType = ClPlatformTypeEnum::Unknown;
         if (platformName == "AMD Accelerated Parallel Processing")
             platformType = ClPlatformTypeEnum::Amd;
@@ -566,6 +569,8 @@ void CLMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollection
                 clDeviceType = DeviceTypeEnum::Cpu;
             else if (detectedType == CL_DEVICE_TYPE_ACCELERATOR)
                 clDeviceType = DeviceTypeEnum::Accelerator;
+            else if (detectedType == CL_DEVICE_TYPE_GPU)
+                clDeviceType = DeviceTypeEnum::Gpu;
 
             string uniqueId;
             DeviceDescriptor deviceDescriptor;
